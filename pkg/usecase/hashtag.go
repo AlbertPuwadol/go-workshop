@@ -9,6 +9,8 @@ import (
 
 type IHashtag interface {
 	GetAll(ctx context.Context) ([]entity.Hashtag, error)
+	CreateQueue(queuename string) error
+	Publish(queuename string, ctx context.Context, message string) error
 }
 
 type hashtag struct {
