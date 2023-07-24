@@ -19,7 +19,7 @@ type hashtag struct {
 	rabbitMQAdapter adapter.IRabbitMQ
 }
 
-func Newhashtag(mongoDBAdapter adapter.IMongoAdapter, rabbitMQAdapter adapter.IRabbitMQ) *hashtag {
+func NewHashtag(mongoDBAdapter adapter.IMongoAdapter, rabbitMQAdapter adapter.IRabbitMQ) *hashtag {
 	return &hashtag{mongoDBAdapter, rabbitMQAdapter}
 }
 

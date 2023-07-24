@@ -41,7 +41,7 @@ func main() {
 	hashtagCollection := mongodbClient.Database("go_workshop").Collection("hashtag")
 	mongoDBAdapter := adapter.NewMongoDBAdapter(mongodbClient, hashtagCollection)
 
-	repository := repository.Newhashtag(mongoDBAdapter, rabbitMQAdapter)
+	repository := repository.NewHashtag(mongoDBAdapter, rabbitMQAdapter)
 
 	usecase := usecase.NewHashtag(repository)
 
@@ -52,11 +52,9 @@ func main() {
 		log.Println(err)
 	}
 
-	log.Print(result)
+	log.Println(result)
 
-	for _, v := range result {
-		usecase.Publish(cfg.IntervalQueue, ctx, v.Keyword)
-		log.Printf("Publish to queue: %s message: %s\n", cfg.IntervalQueue, v.Keyword)
-	}
+	usecase.Publish(cfg.IntervalQueue, ctx, result)
+	log.Printf("Publish to queue: %s success\n", cfg.IntervalQueue)
 
 }
