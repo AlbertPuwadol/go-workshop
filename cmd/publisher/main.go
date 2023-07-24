@@ -16,10 +16,6 @@ func main() {
 
 	log.Println(cfg)
 
-	// rabbitconn, err := amqp.Dial(fmt.Sprintf(cfg.RabbitMQURI))
-	// if err != nil {
-	// 	log.Panic(err)
-	// }
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
