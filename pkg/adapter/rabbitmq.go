@@ -2,34 +2,42 @@ package adapter
 
 import (
 	"context"
+	"log"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 type IRabbitMQ interface {
 	Publish(queuename string, ctx context.Context, message []byte) error
-	Consume(queuename string) (interface{}, error)
+	Consume(queuename string, callback func([]byte))
 	CreateQueue(queuename string) error
+	Close()
 }
 
 type rabbitmq struct {
+	conn    *amqp.Connection
 	channel *amqp.Channel
 }
 
-func NewRabbitMQChannel(ctx context.Context, uri string) (*amqp.Channel, error) {
-	rabbitconn, err := amqp.Dial(uri)
+func NewRabbitMQChannel(ctx context.Context, uri string) (*amqp.Connection, *amqp.Channel, error) {
+	conn, err := amqp.Dial(uri)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	rabbitch, err := rabbitconn.Channel()
+	ch, err := conn.Channel()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	return rabbitch, err
+	return conn, ch, err
 }
 
-func NewRabbitMQAdapter(channel *amqp.Channel) *rabbitmq {
-	return &rabbitmq{channel}
+func NewRabbitMQAdapter(conn *amqp.Connection, channel *amqp.Channel) *rabbitmq {
+	return &rabbitmq{conn, channel}
+}
+
+func (r *rabbitmq) Close() {
+	r.conn.Close()
+	r.channel.Close()
 }
 
 func (r *rabbitmq) CreateQueue(queuename string) error {
@@ -58,7 +66,7 @@ func (r *rabbitmq) Publish(queuename string, ctx context.Context, message []byte
 	return err
 }
 
-func (r *rabbitmq) Consume(queuename string) (interface{}, error) {
+func (r *rabbitmq) Consume(queuename string, callback func([]byte)) {
 	msgs, err := r.channel.Consume(
 		queuename, // queue
 		"",        // consumer
@@ -69,11 +77,17 @@ func (r *rabbitmq) Consume(queuename string) (interface{}, error) {
 		nil,       // args
 	)
 	if err != nil {
-		return nil, err
+		log.Panic(err)
 	}
-	result := make([]interface{}, 0)
-	for d := range msgs {
-		result = append(result, d)
-	}
-	return result, nil
+
+	var forever chan interface{}
+
+	go func() {
+		for d := range msgs {
+			callback(d.Body)
+		}
+	}()
+
+	<-forever
+
 }

@@ -19,13 +19,14 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	rabbitch, err := adapter.NewRabbitMQChannel(ctx, cfg.RabbitMQURI)
+	rabbitconn, rabbitch, err := adapter.NewRabbitMQChannel(ctx, cfg.RabbitMQURI)
 	if err != nil {
 		log.Panic(err)
 	}
-	defer rabbitch.Close()
 
-	rabbitMQAdapter := adapter.NewRabbitMQAdapter(rabbitch)
+	rabbitMQAdapter := adapter.NewRabbitMQAdapter(rabbitconn, rabbitch)
+
+	defer rabbitMQAdapter.Close()
 
 	mongodbClient, err := adapter.NewMongoDBConnection(ctx, cfg.MongoDBURI)
 	if err != nil {

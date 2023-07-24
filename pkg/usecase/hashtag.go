@@ -36,10 +36,10 @@ func (h hashtag) CreateQueue(queuename string) error {
 
 func (h hashtag) Publish(queuename string, ctx context.Context, hashtag []entity.Hashtag) error {
 	for _, v := range hashtag {
-		if err := h.repo.Publish(queuename, ctx, v.Keyword); err != nil {
+		if err := h.repo.Publish(queuename, ctx, v); err != nil {
 			return err
 		}
-		log.Printf("Publish hashtag: %s to queue: %s", v.Keyword, queuename)
+		log.Printf("Publish hashtag: %s to queue: %s\n", v.Keyword, queuename)
 	}
 	return nil
 }

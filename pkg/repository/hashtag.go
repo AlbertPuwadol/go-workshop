@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/AlbertPuwadol/go-workshop/pkg/adapter"
 	"github.com/AlbertPuwadol/go-workshop/pkg/entity"
@@ -11,7 +12,7 @@ import (
 type IHashtag interface {
 	GetAll(ctx context.Context) ([]entity.Hashtag, error)
 	CreateQueue(queuename string) error
-	Publish(queuename string, ctx context.Context, message string) error
+	Publish(queuename string, ctx context.Context, hashtag entity.Hashtag) error
 }
 
 type hashtag struct {
@@ -40,6 +41,10 @@ func (h hashtag) CreateQueue(queuename string) error {
 	return h.rabbitMQAdapter.CreateQueue(queuename)
 }
 
-func (h hashtag) Publish(queuename string, ctx context.Context, message string) error {
-	return h.rabbitMQAdapter.Publish(queuename, ctx, []byte(message))
+func (h hashtag) Publish(queuename string, ctx context.Context, hashtag entity.Hashtag) error {
+	job, err := json.Marshal(hashtag)
+	if err != nil {
+		return err
+	}
+	return h.rabbitMQAdapter.Publish(queuename, ctx, job)
 }

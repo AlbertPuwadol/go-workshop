@@ -1,6 +1,8 @@
 package entity
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type Hashtag struct {
-	ID      string `example:"1234"`
-	Keyword string `example:"gankub"`
+	ID      primitive.ObjectID `bson:"_id"`
+	Keyword string             `bson:"keyword"`
 }
