@@ -1,1 +1,1 @@
-# go-workshop-alps
+# go-workshop
