@@ -9,9 +9,11 @@ import (
 	"github.com/AlbertPuwadol/go-workshop/pkg/adapter"
 	"github.com/AlbertPuwadol/go-workshop/pkg/repository"
 	"github.com/AlbertPuwadol/go-workshop/pkg/usecase"
+	"github.com/AlbertPuwadol/test-go-util/mongo"
 )
 
 func main() {
+	log.Println(mongo.Hello())
 	cfg := config.NewConfig()
 
 	log.Println(cfg)
